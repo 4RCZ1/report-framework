@@ -14,12 +14,16 @@
     "@emotion/styled": "^11.11.5",
     "@mui/material": "^6.0.0-alpha.3",
     "next": "14.2.1",
+    "pg": "^8.11.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "vite-tsconfig-paths": "^4.3.2"
   },
   "devDependencies": {
+    "@faker-js/faker": "^8.4.1",
     "@testing-library/react": "^15.0.2",
     "@types/node": "^20",
+    "@types/pg": "^8.11.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@vitejs/plugin-react": "^4.2.1",
