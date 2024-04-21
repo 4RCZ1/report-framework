@@ -1,5 +1,5 @@
 import parseRequest from "@/app/framework/requestParser";
-import { expect, describe, it } from 'vitest'
+import {expect, describe, it} from 'vitest'
 
 type dataSet = {
   request: string,
@@ -8,7 +8,7 @@ type dataSet = {
   name: string
 }
 
-const dataSets : dataSet[] = [
+const dataSets: dataSet[] = [
   {
     request: 'sp(n)p(bs)',
     command: 'SELECT salespeople.name, positions.base_salary FROM salespeople JOIN positions ON salespeople.position_id = positions.id',
@@ -26,10 +26,23 @@ const dataSets : dataSet[] = [
     command: 'SELECT salespeople.name, positions.base_salary FROM salespeople JOIN positions ON salespeople.position_id = positions.id WHERE positions.base_salary > $1',
     values: [1000],
     name: 'requestWithConditionals'
-  }
+  },
+  {
+    request: 'sp(n,{sl(sd)})p(bs)',
+    command: `
+        SELECT salespeople.name,
+               positions.base_salary,
+               (SELECT json_agg(json_build_object(
+                       'sale_date', sales.sale_date
+                                ))
+                FROM sales
+                WHERE sales.salesperson_id = salespeople.id) as sales_dates
+        FROM salespeople
+                 JOIN positions ON salespeople.position_id = positions.id`,
+    values: [],
+    name: 'requestBasic'
+  },
 ]
-
-
 
 
 describe('parseRequest', () => {
