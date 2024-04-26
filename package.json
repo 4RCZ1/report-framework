@@ -15,8 +15,10 @@
     "@mui/material": "^6.0.0-alpha.3",
     "next": "14.2.1",
     "pg": "^8.11.5",
+    "pg-hstore": "^2.3.4",
     "react": "^18",
     "react-dom": "^18",
+    "sequelize": "^6.37.3",
     "vite-tsconfig-paths": "^4.3.2"
   },
   "devDependencies": {
