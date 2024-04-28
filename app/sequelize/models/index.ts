@@ -46,4 +46,22 @@ Sale.belongsTo(Salesperson, {
   foreignKey: 'salesperson_id',
 });
 
-export { Salesperson, Store, Position, Sale };
+export {
+  Brand,
+  Car,
+  Salesperson,
+  Store,
+  Position,
+  Sale,
+}
+
+const models = {
+  Brand,
+  Car,
+  Salesperson,
+  Store,
+  Position,
+  Sale,
+}
+
+export default models
