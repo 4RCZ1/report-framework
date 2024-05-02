@@ -46,7 +46,7 @@ Sale.belongsTo(Salesperson, {
   foreignKey: 'salesperson_id',
 });
 
-export {
+const models = {
   Brand,
   Car,
   Salesperson,
@@ -55,7 +55,20 @@ export {
   Sale,
 }
 
-const models = {
+function getTablesAndColumns() {
+  const tablesAndColumns = {};
+
+  for (const modelName in models) {
+    const model = models[modelName as keyof typeof models];
+    // @ts-ignore
+    tablesAndColumns[modelName] = Object.keys(model.getAttributes());
+  }
+
+  return tablesAndColumns;
+}
+export {getTablesAndColumns}
+
+export {
   Brand,
   Car,
   Salesperson,

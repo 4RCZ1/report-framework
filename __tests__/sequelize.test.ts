@@ -4,6 +4,7 @@ import {afterAll, beforeAll, describe, it, expect} from 'vitest'
 import {FindOptions, Sequelize} from "sequelize";
 import QueryEncoder from "@/app/framework/QueryEncoder";
 import QueryDecoder from "@/app/framework/queryDecoder";
+import {getTablesAndColumns} from "@/app/sequelize/models";
 
 describe('Sequelize Integration Test', () => {
   beforeAll(async () => {
@@ -57,6 +58,11 @@ describe('Sequelize Integration Test', () => {
 
     const sales = await Sale.findAll(decodedOptions);
     console.log(JSON.stringify(sales, null, 2));
+  })
+
+  it('should get column names for each table', async () => {
+    const tablesAndColumns = getTablesAndColumns();
+    console.log(JSON.stringify(tablesAndColumns, null, 2));
   })
 
   afterAll(async () => {
