@@ -65,6 +65,7 @@ function getTablesAndColumns() {
   interface TablesAndColumns {
     [key: string]: {
       columns: string[],
+      humanReadableColumns: string[],
       associations: {
         [key: string]: association
       }
@@ -76,6 +77,15 @@ function getTablesAndColumns() {
     const model = models[modelName as keyof typeof models];
     tablesAndColumns[modelName] = {
       columns: Object.keys(model.rawAttributes),
+      humanReadableColumns: Object.keys(model.rawAttributes).map((column) => {
+        if(column.toLowerCase() === column) {
+          return column.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+        }
+        return column.split(/(?=[A-Z][a-z])/g)
+          .join(" ")
+          .toLowerCase()
+          .replace(/^\w|\s\w/g, (letter) => letter.toUpperCase());
+      }),
       associations: {},
     };
 
