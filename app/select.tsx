@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from 'react';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputLabel from '@mui/material/InputLabel';
@@ -19,28 +21,19 @@ const MenuProps = {
     },
   },
 };
+type Props = {
+  fields: string[];
+  values: string[];
+  checkedValues: string[];
+  setCheckedValues: (value: string[]) => void;
+}
+export default function MultiSelect({fields, values, checkedValues, setCheckedValues}: Props) {
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-
-export default function MultipleSelectCheckmarks() {
-  const [personName, setPersonName] = React.useState<string[]>([]);
-
-  const handleChange = (event: SelectChangeEvent<typeof personName>) => {
+  const handleChange = (event: SelectChangeEvent<typeof checkedValues>) => {
     const {
       target: { value },
     } = event;
-    setPersonName(
+    setCheckedValues(
       // On autofill we get a stringified value.
       typeof value === 'string' ? value.split(',') : value,
     );
@@ -54,22 +47,22 @@ export default function MultipleSelectCheckmarks() {
           labelId="demo-multiple-checkbox-label"
           id="demo-multiple-checkbox"
           multiple
-          value={personName}
+          value={checkedValues}
           onChange={handleChange}
           input={<OutlinedInput label="Tag" />}
           renderValue={(selected) => (
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
               {selected.map((value) => (
-                <Chip key={value} label={value} />
+                <Chip key={fields[values.indexOf(value)]} label={fields[values.indexOf(value)]} />
               ))}
             </Box>
           )}
           MenuProps={MenuProps}
         >
-          {names.map((name) => (
-            <MenuItem key={name} value={name}>
-              <Checkbox checked={personName.indexOf(name) > -1} />
-              <ListItemText primary={name} />
+          {fields.map((field, index) => (
+            <MenuItem key={field} value={values[index]}>
+              <Checkbox checked={checkedValues.indexOf(values[index]) > -1} />
+              <ListItemText primary={field} />
             </MenuItem>
           ))}
         </Select>
