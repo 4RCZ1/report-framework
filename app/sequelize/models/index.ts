@@ -56,16 +56,44 @@ const models = {
 }
 
 function getTablesAndColumns() {
-  const tablesAndColumns = {};
+  type associationtype = "HasMany" | "BelongsTo" | "HasOne" | "BelongsToMany";
+  type association = {
+    columns: string[],
+    type: associationtype,
+    foreignKey: string
+  }
+  interface TablesAndColumns {
+    [key: string]: {
+      columns: string[],
+      associations: {
+        [key: string]: association
+      }
+    }
+  }
 
+  const tablesAndColumns: TablesAndColumns = {};
   for (const modelName in models) {
     const model = models[modelName as keyof typeof models];
-    // @ts-ignore
-    tablesAndColumns[modelName] = Object.keys(model.getAttributes());
+    tablesAndColumns[modelName] = {
+      columns: Object.keys(model.rawAttributes),
+      associations: {},
+    };
+
+    for (const associationName in model.associations) {
+      const association = model.associations[associationName];
+      // console.log(association)
+      const associatedModel = association.target;
+      tablesAndColumns[modelName].associations[associatedModel.name] = {
+        columns: Object.keys(associatedModel.rawAttributes),
+        type: association.associationType as associationtype,
+        foreignKey: association.foreignKey
+      };
+    }
   }
 
   return tablesAndColumns;
 }
+
 export {getTablesAndColumns}
 
 export {
