@@ -3,7 +3,7 @@ import {Salesperson, Car, Position, Sale} from '@/app/sequelize/models';
 import {afterAll, beforeAll, describe, it, expect} from 'vitest'
 import {FindOptions, Sequelize} from "sequelize";
 import QueryEncoder from "@/app/framework/QueryEncoder";
-import QueryDecoder from "@/app/framework/queryDecoder";
+import QueryDecoder from "@/app/framework/QueryDecoder";
 import {getTablesAndColumns} from "@/app/sequelize/models";
 
 describe('Sequelize Integration Test', () => {
