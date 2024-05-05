@@ -59,33 +59,35 @@ function getTablesAndColumns() {
   type associationtype = "HasMany" | "BelongsTo" | "HasOne" | "BelongsToMany";
   type association = {
     columns: string[],
-    type: associationtype,
-    foreignKey: string
+    type: associationtype
+  }
+  type tableAndColumn = {
+    columns: string[],
+    humanReadableColumns: string[],
+    associations: {
+      [key: string]: association
+    }
   }
   interface TablesAndColumns {
-    [key: string]: {
-      columns: string[],
-      humanReadableColumns: string[],
-      associations: {
-        [key: string]: association
-      }
+    [key: string]: tableAndColumn
+  }
+
+  const convertToHumanReadable = (column: string) => {
+    if(column.toLowerCase() === column) {
+      return column.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     }
+    return column.split(/(?=[A-Z][a-z])/g)
+      .join(" ")
+      .toLowerCase()
+      .replace(/^\w|\s\w/g, (letter) => letter.toUpperCase());
   }
 
   const tablesAndColumns: TablesAndColumns = {};
   for (const modelName in models) {
     const model = models[modelName as keyof typeof models];
-    tablesAndColumns[modelName] = {
+    const tableAndColumns: tableAndColumn = {
       columns: Object.keys(model.rawAttributes),
-      humanReadableColumns: Object.keys(model.rawAttributes).map((column) => {
-        if(column.toLowerCase() === column) {
-          return column.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-        }
-        return column.split(/(?=[A-Z][a-z])/g)
-          .join(" ")
-          .toLowerCase()
-          .replace(/^\w|\s\w/g, (letter) => letter.toUpperCase());
-      }),
+      humanReadableColumns: Object.keys(model.rawAttributes).map(convertToHumanReadable),
       associations: {},
     };
 
@@ -93,12 +95,21 @@ function getTablesAndColumns() {
       const association = model.associations[associationName];
       // console.log(association)
       const associatedModel = association.target;
-      tablesAndColumns[modelName].associations[associatedModel.name] = {
-        columns: Object.keys(associatedModel.rawAttributes),
-        type: association.associationType as associationtype,
-        foreignKey: association.foreignKey
+      const associatedColumns = Object.keys(associatedModel.rawAttributes);
+      const type = association.associationType as associationtype
+      tableAndColumns.associations[associatedModel.name] = {
+        columns: associatedColumns,
+        type
       };
+      if(type !== "BelongsTo") {
+        tableAndColumns.columns.push(`${associatedModel.name}.id`);
+        tableAndColumns.humanReadableColumns.push(`Data about ${associatedModel.name}`);
+      } else {
+        tableAndColumns.columns = tableAndColumns.columns.concat(associatedColumns.map((column) => `${associatedModel.name}.${column}`));
+        tableAndColumns.humanReadableColumns = tableAndColumns.humanReadableColumns.concat(associatedColumns.map((column) => `${associatedModel.name} ${column}`));
+      }
     }
+    tablesAndColumns[modelName] = tableAndColumns;
   }
 
   return tablesAndColumns;

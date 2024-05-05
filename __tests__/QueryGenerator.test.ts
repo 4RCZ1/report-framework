@@ -1,16 +1,47 @@
-import {Salesperson, Car, Position, Sale} from '@/app/sequelize/models';
 import {describe, it, expect} from 'vitest'
-import {FindOptions, Sequelize} from "sequelize";
+import {Sequelize} from "sequelize";
 import QueryGenerator from "@/app/framework/QueryGenerator";
+import models from '@/app/sequelize/models';
 
-const testData = [
+type testDataType = {
+  baseTable: string,
+  selectedColumns: string[],
+  expectedQuery: {
+    model: string,
+    config: any
+  }
+}
+
+const testData: testDataType[] = [
   {
     baseTable: 'Salesperson',
-    selectedColumns: ['name'],
-    associations: {
-      'Position': ['title'],
-      'Sale': ['price']
-    },
+    selectedColumns: ['name', 'Position.title', 'Sale.price'],
+    expectedQuery: {
+      model: 'Salesperson',
+      config: {
+        attributes: [
+          [Sequelize.col('name'), 'name']
+        ],
+        include: [
+          {
+            model: models.Position,
+            attributes: [
+              [Sequelize.col('title'), 'title']
+            ]
+          },
+          {
+            model: models.Sale,
+            attributes: [
+              [Sequelize.col('price'), 'price']
+            ]
+          }
+        ]
+      }
+    }
+  },
+  {
+    baseTable: 'Salesperson',
+    selectedColumns: ['name', 'Store.name', 'Position.name', 'Sale.id'],
     expectedQuery: {
       model: 'Salesperson',
       config: {
@@ -19,15 +50,21 @@ const testData = [
         ],
         include: [
           {
-            model: 'Position',
+            model: models.Store,
             attributes: [
-              [Sequelize.col('Position.title'), 'title']
+              [Sequelize.col('name'), 'name']
             ]
           },
           {
-            model: 'Sale',
+            model: models.Position,
             attributes: [
-              [Sequelize.col('Sale.price'), 'price']
+              [Sequelize.col('name'), 'name']
+            ]
+          },
+          {
+            model: models.Sale,
+            attributes: [
+              [Sequelize.col('id'), 'id']
             ]
           }
         ]
@@ -39,9 +76,9 @@ const testData = [
 
 
 describe('should use query generator to transform strings received from frontend to a sequelize config', () => {
-  testData.forEach(({baseTable, selectedColumns, associations, expectedQuery}) => {
+  testData.forEach(({baseTable, selectedColumns, expectedQuery}) => {
     it(`should generate query for ${baseTable} with selected columns and associations`, () => {
-      const query = QueryGenerator.generateQuery(baseTable, selectedColumns, associations);
+      const query = QueryGenerator.generateQuery(baseTable, selectedColumns);
       expect(query).toEqual(expectedQuery);
     });
   });

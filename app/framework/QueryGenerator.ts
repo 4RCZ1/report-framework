@@ -1,50 +1,49 @@
 import models from '@/app/sequelize/models';
-import {Sequelize, ModelAttributeColumnOptions} from "sequelize";
-
-type Attribute = string | [any, string];
-type Include = {
-  model: string
-  attributes: Attribute[]
-}
+import {Sequelize, FindOptions, Includeable} from "sequelize";
 
 type query = {
   model: string,
-  config:{
-    attributes: Attribute[],
-    include?: Include[],
-    group?: string[],
-    where?: {
-      [key: string]: any
-    },
-    raw?: boolean
-  }
-}
-
-type associations = {
-  [key: string]: string[]
+  config: FindOptions
 }
 
 class QueryGenerator {
-    public static generateQuery(baseTable:string, selectedColumns:string[], associations:associations,selectedRules?:any[]):query {
-      const query:query = {
-        model: baseTable,
-        config: {
-          attributes: selectedColumns.map(column => [Sequelize.col(`${baseTable}.${column}`), column]),
+  public static generateQuery(baseTable: string, selectedColumns: string[], selectedRules?: any[]): query {
+    const baseTableColumns = []
+    const associations:{[key: string]: string[]} = {}
+    for (const column of selectedColumns) {
+      if(column.includes('.')) {
+        const [table, col] = column.split('.')
+        if(!associations[table]) {
+          associations[table] = []
         }
+        if(col !== 'id') associations[table].push(col)
+      } else {
+        baseTableColumns.push(column)
       }
-
-      if(Object.keys(associations).length > 0){
-        query.config.include = []
-        for(const table in associations){
-          query.config.include.push({
-            model: table,
-            attributes: associations[table].map(column => [Sequelize.col(`${table}.${column}`), column])
-          })
-        }
-      }
-
-      return query;
     }
+    console.log('generating query', baseTable, selectedColumns, associations, selectedRules)
+    const query: query = {
+      model: baseTable,
+      config: {
+        attributes: baseTableColumns.map(column => [Sequelize.col(`${baseTable}.${column}`), column]),
+      }
+    }
+
+    if (associations && Object.keys(associations).length > 0) {
+      query.config.include = []
+      for (const table in associations) {
+        const association: Includeable = {
+          model: models[table as keyof typeof models],
+        }
+        if(associations[table].length > 0) {
+          association.attributes = associations[table].map(column => [Sequelize.col(`${column}`), column])
+        }
+        query.config.include.push(association)
+      }
+    }
+
+    return query;
+  }
 }
 
 export default QueryGenerator;
