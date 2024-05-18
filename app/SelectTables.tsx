@@ -12,11 +12,15 @@ import MenuItem from '@mui/material/MenuItem';
 
 function SelectTables({tablesAndColumns, executeQuery}: {
   tablesAndColumns: any,
-  executeQuery: (selectedTable: string, selectedColumns: string[], associations?:{[key: string]:string[]}) => Promise<any>
+  executeQuery: (selectedTable: string, selectedColumns: string[], associations?: {
+    [key: string]: string[]
+  }) => Promise<any>
 }) {
   const [selectedTable, setSelectedTable] = useState('');
+  const [associatedTables, setAssociatedTables] = useState<string[]>([]);
   const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
   const [queryResult, setQueryResult] = useState<any[]>([]);
+  const [associatedTablesSelectedColumns, setAssociatedTablesSelectedColumns] = useState<string[][]>([]);
 
   const handleTableChange = (event: any) => {
     setSelectedTable(event.target.value);
@@ -26,12 +30,26 @@ function SelectTables({tablesAndColumns, executeQuery}: {
   const updateSelectedColumns = (content: string[]) => {
     console.log(content)
     setSelectedColumns(content)
+    if (content.some((column) => column.includes('id'))) {
+      const associatedTables = content.filter((column) => column.includes('id')).map((column) => column.split('.')[0])
+      setAssociatedTables(associatedTables)
+    }
+  }
+
+  const updateAssociatedColumns = (index: number, content: string[]) => {
+    const newAssociatedTablesSelectedColumns = [...associatedTablesSelectedColumns];
+    newAssociatedTablesSelectedColumns[index] = content;
+    setAssociatedTablesSelectedColumns(newAssociatedTablesSelectedColumns);
   }
 
   const submitQuery = async () => {
     try {
-      console.log('submitting query', selectedTable, selectedColumns)
-      const query = await executeQuery(selectedTable, selectedColumns);
+      const allSelectedColumns = [
+        ...selectedColumns,
+        ...associatedTablesSelectedColumns.map((columns, index) => columns.map((column) => `${associatedTables[index]}.${column}`)).flat()
+      ]
+      console.log('submitting query', selectedTable, allSelectedColumns)
+      const query = await executeQuery(selectedTable, allSelectedColumns);
       console.log(query)
       setQueryResult(query)
     } catch (error) {
@@ -55,6 +73,20 @@ function SelectTables({tablesAndColumns, executeQuery}: {
             <MultiSelect fields={tablesAndColumns[selectedTable].humanReadableColumns}
                          values={tablesAndColumns[selectedTable].columns} checkedValues={selectedColumns}
                          setCheckedValues={updateSelectedColumns}/>
+          </div>
+        )}
+        {associatedTables.length > 0 && (
+          <div>
+            <h2>Associated Tables</h2>
+            {associatedTables.map((tableName, index) => (
+              <div key={tableName}>
+                <h3>{tableName}</h3>
+                <MultiSelect fields={tablesAndColumns[tableName].humanReadableColumns}
+                             values={tablesAndColumns[tableName].columns}
+                             checkedValues={associatedTablesSelectedColumns[index] || []}
+                             setCheckedValues={(content) => updateAssociatedColumns(index, content)}/>
+              </div>
+            ))}
           </div>
         )}
         <button onClick={submitQuery}>Submit</button>

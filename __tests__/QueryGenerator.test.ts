@@ -20,7 +20,7 @@ const testData: testDataType[] = [
       model: 'Salesperson',
       config: {
         attributes: [
-          [Sequelize.col('name'), 'name']
+          [Sequelize.col('Salesperson.name'), 'name']
         ],
         include: [
           {
@@ -62,9 +62,35 @@ const testData: testDataType[] = [
             ]
           },
           {
+            model: models.Sale
+          }
+        ]
+      }
+    }
+  },
+  {
+    baseTable: 'Salesperson',
+    selectedColumns: [ 'name', 'Sale.id', 'Sale.Car.model', 'Sale.Car.price' ],
+    expectedQuery: {
+      model: 'Salesperson',
+      config: {
+        attributes: [
+          [Sequelize.col('Salesperson.name'), 'name']
+        ],
+        include: [
+          {
             model: models.Sale,
             attributes: [
               [Sequelize.col('id'), 'id']
+            ],
+            include: [
+              {
+                model: models.Car,
+                attributes: [
+                  [Sequelize.col('model'), 'model'],
+                  [Sequelize.col('price'), 'price']
+                ]
+              }
             ]
           }
         ]

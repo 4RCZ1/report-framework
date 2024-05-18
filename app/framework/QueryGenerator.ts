@@ -7,7 +7,7 @@ type query = {
 }
 
 class QueryGenerator {
-  public static generateQuery(baseTable: string, selectedColumns: string[], selectedRules?: any[]): query {
+  public static generateQuery(baseTable: string, selectedColumns: string[], selectedRules?: any[], query?:query): query {
     const baseTableColumns = []
     const associations:{[key: string]: string[]} = {}
     for (const column of selectedColumns) {
@@ -22,10 +22,12 @@ class QueryGenerator {
       }
     }
     console.log('generating query', baseTable, selectedColumns, associations, selectedRules)
-    const query: query = {
-      model: baseTable,
-      config: {
-        attributes: baseTableColumns.map(column => [Sequelize.col(`${baseTable}.${column}`), column]),
+    if(!query) {
+      query = {
+        model: baseTable,
+        config: {
+          attributes: baseTableColumns.map(column => [Sequelize.col(`${baseTable}.${column}`), column]),
+        }
       }
     }
 
