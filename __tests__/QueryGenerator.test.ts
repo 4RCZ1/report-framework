@@ -15,7 +15,7 @@ type testDataType = {
 const testData: testDataType[] = [
   {
     baseTable: 'Salesperson',
-    selectedColumns: ['name', 'Position.title', 'Sale.price'],
+    selectedColumns: ['name', 'Position.name', 'Sale.price'],
     expectedQuery: {
       model: 'Salesperson',
       config: {
@@ -26,7 +26,7 @@ const testData: testDataType[] = [
           {
             model: models.Position,
             attributes: [
-              [Sequelize.col('title'), 'title']
+              [Sequelize.col('name'), 'name']
             ]
           },
           {
@@ -50,19 +50,22 @@ const testData: testDataType[] = [
         ],
         include: [
           {
-            model: models.Store,
-            attributes: [
-              [Sequelize.col('name'), 'name']
-            ]
-          },
-          {
             model: models.Position,
             attributes: [
               [Sequelize.col('name'), 'name']
             ]
           },
           {
-            model: models.Sale
+            model: models.Sale,
+            attributes: [
+              [Sequelize.col('id'), 'id']
+            ]
+          },
+          {
+            model: models.Store,
+            attributes: [
+              [Sequelize.col('name'), 'name']
+            ]
           }
         ]
       }
