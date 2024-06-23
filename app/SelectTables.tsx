@@ -25,15 +25,16 @@ function SelectTables({tablesAndColumns, executeQuery}: {
   const handleTableChange = (event: any) => {
     setSelectedTable(event.target.value);
     setSelectedColumns([]);
+    setAssociatedTables([]);
+    setAssociatedTablesSelectedColumns([]);
   };
 
   const updateSelectedColumns = (content: string[]) => {
     console.log(content)
     setSelectedColumns(content)
-    if (content.some((column) => column.includes('id'))) {
-      const associatedTables = content.filter((column) => column.includes('id')).map((column) => column.split('.')[0])
-      setAssociatedTables(associatedTables)
-    }
+    const idCols = content.filter((column) => column.includes('id'))
+    const associatedTables = idCols.map((column) => column.split('.')[0])
+    setAssociatedTables(associatedTables)
   }
 
   const updateAssociatedColumns = (index: number, content: string[]) => {
@@ -60,8 +61,6 @@ function SelectTables({tablesAndColumns, executeQuery}: {
   return (
     <>
       <div>
-        <h1>Dashboard</h1>
-        <p>Welcome to the dashboard!</p>
         <Select value={selectedTable} onChange={handleTableChange}>
           {Object.keys(tablesAndColumns).map((tableName) => (
             <MenuItem key={tableName} value={tableName}>{tableName}</MenuItem>

@@ -1,4 +1,4 @@
-import models, { getTablesAndColumns } from './sequelize/models';
+import models, {getTablesAndColumns} from './sequelize/models';
 import SelectTables from "@/app/SelectTables";
 import QueryGenerator from "@/app/framework/QueryGenerator";
 
@@ -12,7 +12,7 @@ function Dashboard() {
 
   async function executeQuery(selectedTable: string, selectedColumns: string[]) {
     'use server'
-    try{
+    try {
       const query = QueryGenerator.generateQuery(selectedTable, selectedColumns)
       // @ts-ignore
       const results = await models[query.model].findAll(query.config)
