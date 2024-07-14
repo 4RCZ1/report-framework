@@ -26,8 +26,9 @@ type Props = {
   values: string[];
   checkedValues: string[];
   setCheckedValues: (value: string[]) => void;
+  label: string;
 }
-export default function MultiSelect({fields, values, checkedValues, setCheckedValues}: Props) {
+export default function MultiSelect({fields, values, checkedValues, setCheckedValues, label}: Props) {
 
   const handleChange = (event: SelectChangeEvent<typeof checkedValues>) => {
     const {
@@ -42,10 +43,9 @@ export default function MultiSelect({fields, values, checkedValues, setCheckedVa
   return (
     <div>
       <FormControl sx={{ m: 1, width: 300 }}>
-        <InputLabel id="demo-multiple-checkbox-label">Tag</InputLabel>
+        <InputLabel>Tag</InputLabel>
         <Select
-          labelId="demo-multiple-checkbox-label"
-          id="demo-multiple-checkbox"
+          aria-label={label}
           multiple
           value={checkedValues}
           onChange={handleChange}

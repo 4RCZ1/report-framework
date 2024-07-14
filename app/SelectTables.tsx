@@ -1,6 +1,6 @@
 'use client'
 
-import MultiSelect from "@/app/select";
+import MultiSelect from "@/app/MultiSelect";
 import React, {useState} from 'react';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -61,7 +61,12 @@ function SelectTables({tablesAndColumns, executeQuery}: {
   return (
     <>
       <div>
-        <Select value={selectedTable} onChange={handleTableChange}>
+        <Select
+          value={selectedTable}
+          onChange={handleTableChange}
+          aria-label="main_select"
+          id="main_select"
+        >
           {Object.keys(tablesAndColumns).map((tableName) => (
             <MenuItem key={tableName} value={tableName}>{tableName}</MenuItem>
           ))}
@@ -69,9 +74,13 @@ function SelectTables({tablesAndColumns, executeQuery}: {
         {selectedTable && (
           <div>
             <h2>{selectedTable}</h2>
-            <MultiSelect fields={tablesAndColumns[selectedTable].humanReadableColumns}
-                         values={tablesAndColumns[selectedTable].columns} checkedValues={selectedColumns}
-                         setCheckedValues={updateSelectedColumns}/>
+            <MultiSelect
+              fields={tablesAndColumns[selectedTable].humanReadableColumns}
+              values={tablesAndColumns[selectedTable].columns}
+              checkedValues={selectedColumns}
+              setCheckedValues={updateSelectedColumns}
+              label={selectedTable + "_select"}
+            />
           </div>
         )}
         {associatedTables.length > 0 && (
@@ -80,10 +89,12 @@ function SelectTables({tablesAndColumns, executeQuery}: {
             {associatedTables.map((tableName, index) => (
               <div key={tableName}>
                 <h3>{tableName}</h3>
-                <MultiSelect fields={tablesAndColumns[tableName].humanReadableColumns}
-                             values={tablesAndColumns[tableName].columns}
-                             checkedValues={associatedTablesSelectedColumns[index] || []}
-                             setCheckedValues={(content) => updateAssociatedColumns(index, content)}/>
+                <MultiSelect
+                  fields={tablesAndColumns[tableName].humanReadableColumns}
+                  values={tablesAndColumns[tableName].columns}
+                  checkedValues={associatedTablesSelectedColumns[index] || []}
+                  setCheckedValues={(content) => updateAssociatedColumns(index, content)}
+                  label={tableName + "_select"}/>
               </div>
             ))}
           </div>
