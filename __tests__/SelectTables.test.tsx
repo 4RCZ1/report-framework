@@ -1,5 +1,5 @@
 import {expect, test, vi} from 'vitest'
-import {getByRole, getByText, render, screen} from '@testing-library/react'
+import {cleanup, getByRole, getByText, render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import SelectTables from "@/app/SelectTables"
 
@@ -333,8 +333,7 @@ const tablesAndColumns = {
 }
 
 
-test('Select tables', async () => {
-
+test('Select a table with relation one to many', async () => {
   const mockExecuteQuery = vi.fn((selectedTable: string, selectedColumns: string[], associations?: {
     [key: string]: string[]
   }): Promise<any> => {
@@ -358,6 +357,37 @@ test('Select tables', async () => {
   expect(mockExecuteQuery).toHaveBeenCalledWith(
     'Brand',
     ['Car.id', 'name', 'Car.Sale.id', 'Car.model']
+  )
+})
+
+test('Select tables deeper than one association', async () => {
+  const mockExecuteQuery = vi.fn((selectedTable: string, selectedColumns: string[], associations?: {
+    [key: string]: string[]
+  }): Promise<any> => {
+    return Promise.resolve({
+      result: ['result']
+    })
+  })
+
+  cleanup()
+  render(<SelectTables tablesAndColumns={tablesAndColumns} executeQuery={mockExecuteQuery}/>)
+  const mainSelect = screen.getByLabelText('main_select')
+  const mainSelectButton = getByRole(mainSelect, 'combobox')
+  await userEvent.click(mainSelectButton)
+
+  let listbox = screen.getByRole('listbox')
+
+  await userEvent.click(getByText(listbox, 'Store'))
+
+  await Helpers.selectFromMultiSelect('Store_select', ['Data about Salesperson', 'Name'])
+  console.log('selecting salesperson data')
+  await Helpers.selectFromMultiSelect('Salesperson_select', ['Data about Sale', 'Name'])
+  console.log('selecting sale data')
+  await Helpers.selectFromMultiSelect('Sale_select', ['Sale Date'])
+  await userEvent.click(screen.getByText('Submit'))
+  expect(mockExecuteQuery).toHaveBeenCalledWith(
+    'Store',
+    ['Salesperson.id', 'name', 'Salesperson.Sale.id', 'Salesperson.name', 'Salesperson.Sale.sale_date']
   )
 })
 
